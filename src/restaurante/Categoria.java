@@ -9,7 +9,7 @@ public class Categoria {
     public Categoria (Long id, String desc) {
         this.cat_id = id;
         this.cat_desc = desc;
-        // Teste descrição categoria
+        // Teste descrição catego
     }
 
     public String getCat_desc() {
