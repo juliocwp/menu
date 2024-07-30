@@ -1,0 +1,12 @@
+[
+{
+    prod_id: 1,
+    prod_desc: 'ola',
+    prod_price: 20
+},
+{
+    prod_id: 1,
+    prod_desc: 'ola',
+    prod_price: 20
+}
+]
