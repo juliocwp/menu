@@ -1,101 +1,23 @@
 package restaurante;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import dal.ConnectionModule;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
+import static java.lang.System.exit;
+
 public class Menu {
+    private final Connection connection;
     private Scanner scanner = new Scanner(System.in);
-    private List<Produto> listaDeProdutos = new ArrayList<>();
-    private Categoria categoria1 = new Categoria(1L, "Alimento");
-    private Categoria categoria2 = new Categoria(2L, "Bebida");
-    private int numeroMenuAdm;
-    private int numeroMenu;
 
-    /*public static void main(String[] args) {
+    public Menu() {
+        this.connection = ConnectionModule.connection();
+    }
 
-        Produto produto1 = new Produto(1L, "Feijão", 20.0, categoria1);
-        //produto1.setProd_cat(categoria1);
-        //produto1.setProd_id(1L);
-        //produto1.setProd_desc("Feijão");
-        //produto1.setProd_price(20.0);
-        listaDeProdutos.add(produto1);
-        Produto produto2 = new Produto(2L, "Coca", 10.0, categoria2);
-        //Produto produto2 = new Produto();
-        //produto2.setProd_id(2L);
-        //produto2.setProd_desc("Arroz");
-        //produto2.setProd_price(15.0);
-        listaDeProdutos.add(produto2);
-
-
-        do {
-            System.out.println("===========================");
-            System.out.println("=======MENU CARDAPIO=======");
-            System.out.println("===========================");
-            System.out.println("4- Salvar itens no TXT");
-            System.out.println("3- Printar Alimentos");
-            System.out.println("2- Printar Bebidas");
-            System.out.println("1- Menu Admin");
-            System.out.println("0- Sair");
-            System.out.println("===========================");
-            System.out.print("Digite um número: ");
-
-            // tratamento de exceção
-            try {
-                numeroMenu = scanner.nextInt();
-            } catch (Exception e) {
-                scanner = new Scanner(System.in);
-                numeroMenu = -1;
-            }
-
-            switch (numeroMenu) {
-                case 4:
-                    String nomeArquivo = "C:\\Users\\julio\\IdeaProjects\\untitled\\src\\restaurante\\produtos.txt";
-
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(nomeArquivo, true))) {
-                        for (Produto produto : listaDeProdutos) {
-                            writer.write(produto.toString());
-                            writer.newLine();  // Adiciona uma nova linha após cada produto
-                        }
-                        System.out.println("Lista de produtos foi salva em " + nomeArquivo);
-                    } catch (IOException e) {
-                        System.err.println("Erro ao salvar arquivo: " + e.getMessage());
-                    }
-                    break;
-                // PRintar Alimento
-                case 3:
-                    //for each -> para cada
-                    for (Produto prod : listaDeProdutos) {
-                        Categoria cat = prod.getProd_cat();
-                        if (cat.getCat_id() == 1L) {
-                            System.out.println(prod);
-                        }
-                    }
-                    break;
-                // Printar Bebidas
-                case 2:
-                    for (Produto prod : listaDeProdutos) {
-                        Categoria cat = prod.getProd_cat();
-                        if (cat.getCat_id() == 2L) {
-                            System.out.println(prod);
-                        }
-                    }
-                    break;
-                case 1:
-                    chamaMenuAdmin();
-                    break;
-                case 0:
-                    System.out.println("Programa finalizado");
-                    //encerrar programa
-                    System.exit(0);
-                default:
-                    System.out.println("Digite um número válido.");
-                    break;
-            }
-
-        } while (numeroMenu != 0);
-    }*/
 
     /**
      * INICIA O MENU
@@ -104,50 +26,22 @@ public class Menu {
     public void iniciarMenu() {
         this.mostrarMenuPrincipal();
     }
+
     private void mostrarMenuPrincipal() {
+        int numeroMenu;
         do {
             printarMenuPrincipal();
-            // tratamento de exceção
-//            try {
-//                numeroMenu = scanner.nextInt();
-//            } catch (Exception e) {
-//                scanner = new Scanner(System.in);
-//                numeroMenu = -1;
-//            }
             numeroMenu = chamaScanner(Integer.class);
 
             switch (numeroMenu) {
-                case 4:
-                    String nomeArquivo = "C:\\Users\\julio\\IdeaProjects\\untitled\\src\\restaurante\\produtos.txt";
-
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(nomeArquivo, true))) {
-                        for (Produto produto : listaDeProdutos) {
-                            writer.write(produto.toString());
-                            writer.newLine();  // Adiciona uma nova linha após cada produto
-                        }
-                        System.out.println("Lista de produtos foi salva em " + nomeArquivo);
-                    } catch (IOException e) {
-                        System.err.println("Erro ao salvar arquivo: " + e.getMessage());
-                    }
-                    break;
                 // PRintar Alimento
                 case 3:
-                    //for each -> para cada
-                    for (Produto prod : listaDeProdutos) {
-                        Categoria cat = prod.getProd_cat();
-                        if (cat.getCat_id() == 1L) {
-                            System.out.println(prod);
-                        }
-                    }
+                    this.printarProdutos(2);
                     break;
                 // Printar Bebidas
                 case 2:
-                    for (Produto prod : listaDeProdutos) {
-                        Categoria cat = prod.getProd_cat();
-                        if (cat.getCat_id() == 2L) {
-                            System.out.println(prod);
-                        }
-                    }
+                    //for each -> para cada
+                    this.printarProdutos(1);
                     break;
                 case 1:
                     chamaMenuAdmin();
@@ -155,7 +49,7 @@ public class Menu {
                 case 0:
                     System.out.println("Programa finalizado");
                     //encerrar programa
-                    System.exit(0);
+                    exit(0);
                 default:
                     System.out.println("Digite um número válido.");
                     break;
@@ -168,7 +62,6 @@ public class Menu {
         System.out.println("===========================");
         System.out.println("=======MENU CARDAPIO=======");
         System.out.println("===========================");
-        System.out.println("4- Salvar itens no TXT");
         System.out.println("3- Printar Alimentos");
         System.out.println("2- Printar Bebidas");
         System.out.println("1- Menu Admin");
@@ -178,78 +71,119 @@ public class Menu {
     }
 
     private void chamaMenuAdmin() {
+        int numeroMenuAdm;
         do {
             printarMenuAdm();
 
             numeroMenuAdm = chamaScanner(Integer.class);//scanner.nextInt();
 
             switch (numeroMenuAdm) {
+                //cadastro de alimentos
                 case 6:
-                    //cadastro de alimentos
-                    String descricaoProd = "";
-                    Double priceProd = 0.0;
-                    System.out.println("============================");
-                    System.out.println("====CADASTRO DE ALIMENTOS=====");
-                    System.out.println("============================");
-                    System.out.println("descrição: ");
-                    descricaoProd = chamaScanner(String.class);
-                    System.out.println("============================");
-                    // Pedir pro usuário digitar o preço, salvar numa variavel
-                    System.out.println("preço:  ");
-                    priceProd = chamaScanner(Double.class);
-                    System.out.println("============================");
-                    // size = 0 + 1 -> id = 1
-                    // size = 1 + 1 -> id = 2
-                    // size = 2 + 1 -> id = 3
-                    Produto novoProd = new Produto();
-                    novoProd.setProd_id((long) (listaDeProdutos.size() + 1));
-                    novoProd.setProd_desc(descricaoProd);
-                    novoProd.setProd_price(priceProd);
-                    novoProd.setProd_cat(categoria1);
+                    // CRUD -> CREATE READ UPDATE E DELETE
+                    // CREATE -> INSERT ( Inserir dados em uma tabela do banco )
 
-                    listaDeProdutos.add(novoProd);
+                    System.out.println("informe o nome do produto: ");
+                    String nomeProduto = scanner.next();
+                    System.out.println("informe o preço do produto: ");
+                    double precoProduto = scanner.nextDouble();
 
-                    break;
-                case 5:
-                    Produto novoProdBebida = new Produto();
-                    String descBebida = "";
-                    double priceBebida = 0.0;
-                    System.out.println("============================");
-                    System.out.println("====CADASTRO DE BEBIDAS=====");
-                    System.out.println("============================");
-                    System.out.println("descrição: ");
-                    descBebida = chamaScanner(String.class);
-                    System.out.println("============================");
-                    // Pedir pro usuário digitar o preço, salvar numa variavel
-                    System.out.println("preço:  ");
-                    priceBebida = chamaScanner(Double.class);
-                    System.out.println("============================");
-                    // size = 0 + 1 -> id = 1
-                    // size = 1 + 1 -> id = 2
-                    // size = 2 + 1 -> id = 3
-                    novoProdBebida.setProd_id((long) (listaDeProdutos.size() + 1));
-                    novoProdBebida.setProd_desc(descBebida);
-                    novoProdBebida.setProd_price(priceBebida);
-                    novoProdBebida.setProd_cat(categoria2);
+                    this.inserirProduto(nomeProduto, precoProduto, 2L);
 
-                    listaDeProdutos.add(novoProdBebida);
                     break;
                 //cadastro de bebidas
-                case 4:
+                case 5:
+                    System.out.println("Nome da bebida: ");
+                    String nomeBebida = scanner.next();
+                    System.out.println("Preço da bebida: ");
+                    double precoBebida = scanner.nextDouble();
+
+                    this.inserirProduto(nomeBebida, precoBebida, 1L);
                     break;
                 //alterar alimento por código
-                case 3:
+
+                case 4: // CRUD -> UPDATE
+                    // Pedir o código do produto
+                    System.out.println("Insira o código do produto que você deseja atualizar: ");
+                    Long codigoProduto = scanner.nextLong();
+                    try {
+                        PreparedStatement pst = this.connection.prepareStatement("SELECT * from produto where prod_id = ?");
+                        pst.setLong(1, codigoProduto);
+                        ResultSet rs = pst.executeQuery();
+
+                        int count = 0;
+
+                        while(rs.next()) {
+                            if(count > 0) {
+                                break;
+                            }
+                            int id = rs.getInt("prod_id"); // Substitua 'id' pelos nomes das colunas da sua tabela
+                            String nome = rs.getString("prod_desc");
+                            double preco = rs.getDouble("prod_price");
+                            long cat_id = rs.getLong("cat_id");
+                            System.out.println("Informações atuais => ID: " + id + ", Nome: " + nome + ", Preço: " + preco + " categoria : " + cat_id);
+                            count += 1;
+                        }
+
+                        if(count == 0){
+                            System.out.println("O produto de id " + codigoProduto + " não existe na base de dados!");
+                            break;
+                        }
+
+                        System.out.println("Insira o novo nome do produto: ");
+                        String novoNomeProduto = scanner.next();
+                        System.out.println("Insira o novo preço do produto: ");
+                        double novoPrecoProduto = scanner.nextDouble();
+                        System.out.println("Insira a nova categoria do produto: ");
+                        Long novaCatProduto = scanner.nextLong();
+
+                        PreparedStatement pstUpdate = this.connection.prepareStatement("UPDATE produto set prod_desc = ?, prod_price = ?, cat_id = ? WHERE prod_id = ?");
+                        pstUpdate.setString(1,novoNomeProduto);
+                        pstUpdate.setDouble(2,novoPrecoProduto);
+                        pstUpdate.setLong(3, novaCatProduto);
+                        pstUpdate.setLong(4, codigoProduto);
+                        int resultado = pstUpdate.executeUpdate();
+                        if(resultado == 1){
+                            System.out.println("Produto atualizado com sucesso!");
+                        } else {
+                            System.out.println("Não foi possível atualizar o produto de ID: " + codigoProduto);
+                        }
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                    }
+
+                    // Consultar no banco se esse produto existe
+                    //  CASO SIM : Mostrar as informações do produto
+                    //  CASO NÃO : Dizer que o produto informado não existe e voltar pro menu admin
+                    // Pedir os novos valores do produto
+                    // Salvar as alterações do produto
                     break;
-                //alterar bebida por código
+                // consulta de produtos
                 case 2:
-                    //consultar por nome, ou id
-                    //digitar um valor
-                    // aveia grossa
-                    // aveia fina
-                    // aveia
-                    break;
-                // consulta de alimentos
-                case 1:
+                    // consulta mais especifica
+                    System.out.println("Informe algum valor para pesquisa (ID ou Descrição ou Preço ou Categoria do Produto ):");
+                    String filter = scanner.next();
+                    filter = "%"+filter+"%";
+
+                    try {
+                        PreparedStatement pst = this.connection.prepareStatement("SELECT * FROM PRODUTO WHERE CAST(prod_id AS CHAR) LIKE ? OR prod_desc LIKE ? OR CAST(prod_price AS CHAR) LIKE ? OR CAST(cat_id AS CHAR) LIKE ?");
+                        pst.setString(1, filter);
+                        pst.setString(2, filter);
+                        pst.setString(3, filter);
+                        pst.setString(4, filter);
+                        ResultSet rs = pst.executeQuery();
+
+                        while(rs.next()) {
+                            int id = rs.getInt("prod_id");
+                            String nome = rs.getString("prod_desc");
+                            double preco = rs.getDouble("prod_price");
+                            long cat_id = rs.getLong("cat_id");
+                            System.out.println("ID: " + id + ", Nome: " + nome + ", Preço: " + preco + " categoria : " + cat_id);
+                        }
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                    }
+
                     break;
                 // consulta de bebidas
                 case 0:
@@ -268,11 +202,45 @@ public class Menu {
         System.out.println("===========================");
         System.out.println("6- Cadastro de Alimentos");
         System.out.println("5- Cadastro de Bebidas");
-        System.out.println("3- Alterar Produto por código");
-        System.out.println("2- Consulta de Alimentos");
-        System.out.println("1- Consulta de Bebidas");
+        System.out.println("4- Alterar Produto por código");
+        System.out.println("2- Consulta de Produtos");
         System.out.println("0- Voltar");
         System.out.println("============================");
+    }
+
+    private void inserirProduto(String prodDesc, double prodPrice, Long catId) {
+        try {
+            PreparedStatement pst = this.connection.prepareStatement("INSERT INTO PRODUTO(prod_desc, prod_price, cat_id) VALUES (?, ?, ?)");
+            pst.setString(1, prodDesc);
+            pst.setDouble(2, prodPrice);
+            pst.setLong(3, catId);
+            pst.execute();
+        } catch (SQLException e) {
+
+        }
+    }
+
+    private void printarProdutos(int tipoCategoria) {
+        try {
+            PreparedStatement pst = this.connection.prepareStatement("SELECT p.* FROM Produto p WHERE p.cat_id = ? ");
+            pst.setString(1, String.valueOf(tipoCategoria));
+            ResultSet rs = pst.executeQuery();
+
+            // Iterar sobre o ResultSet e imprimir os resultados
+            while (rs.next()) {
+                int id = rs.getInt("prod_id"); // Substitua 'id' pelos nomes das colunas da sua tabela
+                String nome = rs.getString("prod_desc");
+                double preco = rs.getDouble("prod_price");
+                long cat_id = rs.getLong("cat_id");
+
+                // Adicione aqui as outras colunas que você deseja imprimir
+
+                System.out.println("ID: " + id + ", Nome: " + nome + ", Preço: " + preco + " categoria : " + cat_id);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Não foi possível consultar os alimentos do banco de dados!");
+        }
     }
 
     private <T> T chamaScanner(Class<T> clazz){
